@@ -22,7 +22,7 @@ namespace chip8 {
             uint8_t DT; // 8-bit delay timer register
             uint8_t ST; // 8-bit sound timer register
 
-            uint8_t Memory[RAM_SIZE]; // 4KB of 8-bit RAM
+            uint8_t Memory[RAM_SIZE]; // 4KB of 8-bit RAM (BIG ENDIAN)
 
             bool IsHalted;
 

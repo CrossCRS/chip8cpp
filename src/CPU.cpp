@@ -48,11 +48,64 @@ Opcode CPU::DecodeOpcode() {
 
 void CPU::Step() {
     Opcode opcode = this->DecodeOpcode();
-    printf("PC: 0x%x\nOPCODE: 0x%x\nNNN: 0x%x\nNN: 0x%x\nN: 0x%x\nX: 0x%x\nY: 0x%x\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
+    printf("PC: 0x%03X\nOPCODE: 0x%04X\nNNN: 0x%03X\nNN: 0x%02X\nN: 0x%01X\nX: 0x%01X\nY: 0x%01X\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
     
     this->PC += 2;
 
     switch (opcode.opcode & 0xF000) {
-        // TODO: Implement opcodes here
+        case 0x0000:
+            switch (opcode.opcode) {
+                case 0x00E0: // CLS - clear screen
+                    break;
+                case 0x00EE: // RET - return from subroutine
+                    if (this->SP < 0) {
+                        // Stack underflow
+                        // TODO: Error handling
+                        this->IsHalted = true;
+                    } else {
+                        this->PC = this->S[this->SP];
+                        this->SP--;
+                    }
+                    break;
+            }
+            break;
+        case 0x1000: // JP NNN - jump to address NNN
+            this->PC = opcode.NNN;
+            break;
+        case 0x2000: // CALL NNN - call subroutine at NNN
+            if (this->SP >= STACK_SIZE - 1) {
+                // Stack overflow
+                // TODO: Error handling
+                this->IsHalted = true;
+            } else {
+                this->SP++; // Increment stack pointer
+                this->S[this->SP] = this->PC; // Store current program counter on the stack
+                this->PC = opcode.NNN; // Set new program counter
+            }
+            break;
+        case 0x3000: // SE Vx NN - Skip next instruction if Vx == NN
+            if (this->V[opcode.X] == opcode.NN) {
+                this->PC += 2;
+            }
+            break;
+        case 0x4000: // SNE Vx NN - Skip next instruction if Vx != NN
+            if (this->V[opcode.X] != opcode.NN) {
+                this->PC += 2;
+            }
+            break;
+        case 0x5000: // SE Vx Vy - Skip next instruction if Vx == Vy
+            if (this->V[opcode.X] == this->V[opcode.Y]) {
+                this->PC += 2;
+            }
+            break;
+        case 0x6000: // LD Vx NN - Set Vx to NN
+            this->V[opcode.X] = opcode.NN;
+        case 0x7000: // ADD Vx NN - Set Vx to Vx + NN
+            this->V[opcode.X] += opcode.NN;
+        case 0x8000:
+            // TODO: 0x8xxx instructions
+            break;
+        default: // Illegal opcode
+            break;
     }
 }
