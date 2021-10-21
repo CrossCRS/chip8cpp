@@ -103,7 +103,52 @@ void CPU::Step() {
         case 0x7000: // ADD Vx NN - Set Vx to Vx + NN
             this->V[opcode.X] += opcode.NN;
         case 0x8000:
-            // TODO: 0x8xxx instructions
+            switch (opcode.opcode & 0xF00F) {
+                case 0x8000:
+                    this->V[opcode.X] = this->V[opcode.Y];
+                    break;
+                case 0x8001: // Vx = Vx OR Vy
+                    this->V[opcode.X] = (this->V[opcode.X] | this->V[opcode.Y]);
+                    break;
+                case 0x8002: // Vx = Vx AND Vy
+                    this->V[opcode.X] = (this->V[opcode.X] & this->V[opcode.Y]);
+                    break;
+                case 0x8003: // Vx = Vx XOR Vy
+                    this->V[opcode.X] = (this->V[opcode.X] ^ this->V[opcode.Y]);
+                    break;
+                case 0x8004: // Vx = Vx + Vy, VF = carry
+                    this->V[0xF] = (this->V[opcode.X] + this->V[opcode.Y] > 255);
+                    this->V[opcode.X] += this->V[opcode.Y];
+                    break;
+                case 0x8005: // Vx = Vx - Vy, VF = NOT borrow
+                    this->V[0xF] = (this->V[opcode.X] > this->V[opcode.Y]);
+                    this->V[opcode.X] -= this->V[opcode.Y];
+                    break;
+                case 0x8006: // Vx = Vx SHR 1
+                    this->V[0xF] = (this->V[opcode.X] & 1);
+                    this->V[opcode.X] >>= 1;
+                    break;
+                case 0x8007: // Set Vx = Vy - Vx, VF = NOT borrow.
+                    this->V[0xF] = (this->V[opcode.Y] > this->V[opcode.X]);
+                    this->V[opcode.X] = this->V[opcode.Y] - this->V[opcode.X];
+                    break;
+                case 0x800E: // Vx = Vx SHL 1
+                    this->V[0xF] = (this->V[opcode.X] >> 7);
+                    this->V[opcode.X] <<= 1;
+                    break;
+                default: // Illegal opcode
+                    break;
+            }
+            break;
+        case 0x9000: // SNE Vx, Vy - skip next instruction if Vx != Vy
+            if (this->V[opcode.X] != this->V[opcode.Y])
+                this->PC += 2;
+            break;
+        case 0xA000: // LD I, addr - I = NNN
+            this->I = opcode.NNN;
+            break;
+        case 0xB000: // JP V0, addr - Jump to V0 + NNN
+            this->PC = this->V[0x0] + opcode.NNN;
             break;
         default: // Illegal opcode
             break;
