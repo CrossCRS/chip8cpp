@@ -100,8 +100,10 @@ void CPU::Step() {
             break;
         case 0x6000: // LD Vx NN - Set Vx to NN
             this->V[opcode.X] = opcode.NN;
+            break;
         case 0x7000: // ADD Vx NN - Set Vx to Vx + NN
             this->V[opcode.X] += opcode.NN;
+            break;
         case 0x8000:
             switch (opcode.opcode & 0xF00F) {
                 case 0x8000:
