@@ -7,11 +7,13 @@
 #include <random>
 #include "Opcode.hpp"
 
-#define STACK_SIZE 16
-#define RAM_SIZE 4096
-
 namespace chip8 {
     class CPU {
+        static const uint STACK_SIZE = 16;
+        static const uint MEMORY_SIZE = 4096;
+        static const uint MEMORY_PROGRAM_START_ADDRESS = 0x200;
+        static const uint MEMORY_FONT_START_ADDRESS = 0x50;
+
         public:
             uint8_t V[16]; // V0-VF registers
             uint16_t I; // 16-bit address register
@@ -23,7 +25,7 @@ namespace chip8 {
             uint8_t DT; // 8-bit delay timer register
             uint8_t ST; // 8-bit sound timer register
 
-            uint8_t Memory[RAM_SIZE]; // 4KB of 8-bit RAM (BIG ENDIAN)
+            uint8_t Memory[MEMORY_SIZE]; // 4KB of 8-bit RAM (BIG ENDIAN)
 
             bool IsHalted;
 
@@ -37,5 +39,7 @@ namespace chip8 {
             std::random_device m_random_device;
             std::mt19937 m_rng;
             std::uniform_int_distribution<> m_rng_dist255;
+
+            void LoadFontset();
     };
 }
