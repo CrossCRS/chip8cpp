@@ -6,6 +6,8 @@ CPU::CPU() : m_random_device(), m_rng(m_random_device()), m_rng_dist255(0, 255) 
     this->Reset();
 }
 
+CPU::~CPU() { }
+
 void CPU::Reset() {
     memset(this->V, 0, sizeof(this->V));
     this->I = 0;

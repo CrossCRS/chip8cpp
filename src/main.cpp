@@ -1,14 +1,8 @@
 #include <cstdio>
-#include "CPU.hpp"
-
-using namespace chip8;
+#include "Emulator.hpp"
 
 int main() {
-    CPU *cpu = new CPU();
-    printf("PRESS ENTER TO STEP.\n");
-
-    while(getchar()) {
-        cpu->CPUTick();
-    }
+    chip8::Emulator emulator;
+    emulator.Run();
     return 0;
 }
