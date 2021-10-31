@@ -27,6 +27,9 @@ namespace chip8 {
 
             uint8_t Memory[MEMORY_SIZE]; // 4KB of 8-bit RAM (BIG ENDIAN)
 
+            uint8_t DelayTimer;
+            uint8_t SoundTimer;
+
             bool IsHalted;
 
             CPU();
@@ -34,7 +37,8 @@ namespace chip8 {
 
             void Reset();
             Opcode DecodeOpcode();
-            void Step();
+            void CPUTick(); // Around 500Hz, should be configurable
+            void TimersTick(); // Always 60Hz
         private:
             std::random_device m_random_device;
             std::mt19937 m_rng;

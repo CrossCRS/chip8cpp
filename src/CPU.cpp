@@ -19,6 +19,9 @@ void CPU::Reset() {
 
     memset(this->Memory, 0, sizeof(this->Memory));
 
+    this->DelayTimer = 0;
+    this->SoundTimer = 0;
+
     this->LoadFontset();
 
     this->IsHalted = false;
@@ -76,7 +79,7 @@ void CPU::LoadFontset() {
     }
 }
 
-void CPU::Step() {
+void CPU::CPUTick() {
     Opcode opcode = this->DecodeOpcode();
     printf("PC: 0x%03X\nOPCODE: 0x%04X\nNNN: 0x%03X\nNN: 0x%02X\nN: 0x%01X\nX: 0x%01X\nY: 0x%01X\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
     
@@ -203,16 +206,16 @@ void CPU::Step() {
         case 0xF000:
             switch (opcode.opcode & 0xF0FF) {
                 case 0xF007: // Set Vx to current delay timer
-                    // TODO: Implement
+                    this->V[opcode.X] = this->DelayTimer;
                     break;
                 case 0xF00A: // Wait for key press and assign result to Vx
                     // TODO: Implement
                     break;
                 case 0xF015: // Set delay timer to Vx
-                    // TODO: Implement
+                    this->DelayTimer = this->V[opcode.X];
                     break;
                 case 0xF018: // Set sound timer to Vx
-                    // TODO: Implement
+                    this->SoundTimer = this->V[opcode.X];
                     break;
                 case 0xF01E: // I += Vx
                     this->I += this->V[opcode.X];
@@ -247,4 +250,12 @@ void CPU::Step() {
         default: // Illegal opcode
             break;
     }
+}
+
+void CPU::TimersTick() {
+    if (this->DelayTimer > 0) 
+        this->DelayTimer--;
+
+    if (this->SoundTimer > 0)
+        this->SoundTimer--;
 }

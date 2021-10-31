@@ -8,7 +8,7 @@ int main() {
     printf("PRESS ENTER TO STEP.\n");
 
     while(getchar()) {
-        cpu->Step();
+        cpu->CPUTick();
     }
     return 0;
 }
