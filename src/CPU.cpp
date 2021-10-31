@@ -2,7 +2,7 @@
 
 using namespace chip8;
 
-CPU::CPU() {
+CPU::CPU() : m_random_device(), m_rng(m_random_device()), m_rng_dist255(0, 255) {
     this->Reset();
 }
 
@@ -151,6 +151,68 @@ void CPU::Step() {
             break;
         case 0xB000: // JP V0, addr - Jump to V0 + NNN
             this->PC = this->V[0x0] + opcode.NNN;
+            break;
+        case 0xC000: // Vx = rand() & NN
+            this->V[opcode.X] = (this->m_rng_dist255(this->m_rng)) & opcode.NN;
+            break;
+        case 0xD000: // Draw at Vx, Vn
+            // TODO: Implement
+            break;
+        case 0xE000:
+            switch (opcode.opcode & 0xF0FF) {
+                case 0xE09E: // Skip next instruction if key[Vx] is pressed
+                    // TODO: Implement
+                    break;
+                case 0xE0A1: // Skip next instruction if key[Vx] is NOT pressed
+                    // TODO: Implement
+                    break;
+                default: // Illegal opcode
+                    break;
+            }
+            break;
+        case 0xF000:
+            switch (opcode.opcode & 0xF0FF) {
+                case 0xF007: // Set Vx to current delay timer
+                    // TODO: Implement
+                    break;
+                case 0xF00A: // Wait for key press and assign result to Vx
+                    // TODO: Implement
+                    break;
+                case 0xF015: // Set delay timer to Vx
+                    // TODO: Implement
+                    break;
+                case 0xF018: // Set sound timer to Vx
+                    // TODO: Implement
+                    break;
+                case 0xF01E: // I += Vx
+                    this->I += this->V[opcode.X];
+                    break;
+                case 0xF029: // Set I to location of sprite for character in Vx
+                    // TODO: Implement
+                    break;
+                case 0xF033: { // Store BCD of Vx in memory at address I
+                    uint8_t value = this->V[opcode.X];
+                    for (uint8_t offset = 2; offset >= 0; offset--) {
+                        this->Memory[this->I + offset] = value % 10;
+                        value /= 10;
+                    }
+                    break;
+                }
+                case 0xF055: { // Store V0 to Vx in memory starting at address I
+                    for (uint8_t i; i <= opcode.X; i++) {
+                        this->Memory[this->I + i] = this->V[i];
+                    }
+                    break;
+                }
+                case 0xF065: { // Fill V0 to Vx with values from memory starting at address I
+                    for (uint8_t i; i <= opcode.X; i++) {
+                        this->V[i] = this->Memory[this->I + i];
+                    }
+                    break;
+                }
+                default: // Illegal opcode
+                    break;
+            }
             break;
         default: // Illegal opcode
             break;

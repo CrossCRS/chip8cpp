@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <random>
 #include "Opcode.hpp"
 
 #define STACK_SIZE 16
@@ -32,5 +33,9 @@ namespace chip8 {
             void Reset();
             Opcode DecodeOpcode();
             void Step();
+        private:
+            std::random_device m_random_device;
+            std::mt19937 m_rng;
+            std::uniform_int_distribution<> m_rng_dist255;
     };
 }
