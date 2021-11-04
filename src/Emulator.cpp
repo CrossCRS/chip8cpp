@@ -2,7 +2,7 @@
 
 using namespace chip8;
 
-Emulator::Emulator() : m_window(sf::VideoMode(800, 600), "Chip8-CPP", sf::Style::Titlebar | sf::Style::Close), m_cpu() {
+Emulator::Emulator() : m_window(sf::VideoMode(1024, 512), "Chip8-CPP", sf::Style::Titlebar | sf::Style::Close), m_cpu() {
     this->m_cpu_timer = 0;
     this->m_timers_timer = 0;
 
@@ -28,7 +28,7 @@ void Emulator::Run() {
         this->Update(elapsed.asSeconds());
 
         m_window.clear();
-        // TODO: Draw
+        m_window.draw(this->m_cpu.GetVideoSprite());
         m_window.display();
     }
 }

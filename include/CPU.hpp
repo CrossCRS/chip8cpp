@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstring>
 #include <random>
+#include <SFML/Graphics.hpp>
 #include "Opcode.hpp"
 
 namespace chip8 {
@@ -13,6 +14,9 @@ namespace chip8 {
         static const uint MEMORY_SIZE = 4096;
         static const uint MEMORY_PROGRAM_START_ADDRESS = 0x200;
         static const uint MEMORY_FONT_START_ADDRESS = 0x50;
+
+        static const uint VIDEO_WIDTH = 64;
+        static const uint VIDEO_HEIGHT = 32;
 
         public:
             uint8_t V[16]; // V0-VF registers
@@ -30,6 +34,8 @@ namespace chip8 {
             uint8_t DelayTimer;
             uint8_t SoundTimer;
 
+            uint8_t Video[VIDEO_WIDTH * VIDEO_HEIGHT * 4];
+
             bool IsHalted;
 
             CPU();
@@ -39,10 +45,15 @@ namespace chip8 {
             Opcode DecodeOpcode();
             void CPUTick(); // Around 500Hz, should be configurable
             void TimersTick(); // Always 60Hz
+
+            sf::Sprite& GetVideoSprite();
         private:
             std::random_device m_random_device;
             std::mt19937 m_rng;
             std::uniform_int_distribution<> m_rng_dist255;
+
+            sf::Texture m_video_texture;
+            sf::Sprite m_sprite;
 
             void LoadFontset();
     };

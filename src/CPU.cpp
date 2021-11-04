@@ -3,10 +3,18 @@
 using namespace chip8;
 
 CPU::CPU() : m_random_device(), m_rng(m_random_device()), m_rng_dist255(0, 255) {
+    this->m_video_texture.create(VIDEO_WIDTH, VIDEO_HEIGHT);
+    this->m_sprite.setTexture(this->m_video_texture);
+    this->m_sprite.setScale(16, 16);
+
     this->Reset();
 }
 
 CPU::~CPU() { }
+
+sf::Sprite& CPU::GetVideoSprite() {
+    return this->m_sprite;
+}
 
 void CPU::Reset() {
     memset(this->V, 0, sizeof(this->V));
@@ -20,6 +28,7 @@ void CPU::Reset() {
     this->ST = 0;
 
     memset(this->Memory, 0, sizeof(this->Memory));
+    memset(this->Video, 0, sizeof(this->Video));
 
     this->DelayTimer = 0;
     this->SoundTimer = 0;
@@ -29,12 +38,27 @@ void CPU::Reset() {
     this->IsHalted = false;
 
     // Insert testing stuff...
-    this->Memory[0x200] = 0x00;
+    /*this->Memory[0x200] = 0x00;
     this->Memory[0x201] = 0xE0; // CLS
     this->Memory[0x202] = 0x12;
-    this->Memory[0x203] = 0x00; // JMP 0x200
-
-    printf("READY.\n");
+    this->Memory[0x203] = 0x00; // JMP 0x200*/
+    this->Memory[0x200] = 0xA2;
+    this->Memory[0x201] = 0x0A;
+    this->Memory[0x202] = 0x60;
+    this->Memory[0x203] = 0x0A;
+    this->Memory[0x204] = 0x61;
+    this->Memory[0x205] = 0x05;
+    this->Memory[0x206] = 0xD0;
+    this->Memory[0x207] = 0x17;
+    this->Memory[0x208] = 0x12;
+    this->Memory[0x209] = 0x08;
+    this->Memory[0x20A] = 0x7C;
+    this->Memory[0x20B] = 0x40;
+    this->Memory[0x20C] = 0x40;
+    this->Memory[0x20D] = 0x7C;
+    this->Memory[0x20E] = 0x40;
+    this->Memory[0x20F] = 0x40;
+    this->Memory[0x210] = 0x7C;
 }
 
 Opcode CPU::DecodeOpcode() {
@@ -83,7 +107,7 @@ void CPU::LoadFontset() {
 
 void CPU::CPUTick() {
     Opcode opcode = this->DecodeOpcode();
-    printf("PC: 0x%03X\nOPCODE: 0x%04X\nNNN: 0x%03X\nNN: 0x%02X\nN: 0x%01X\nX: 0x%01X\nY: 0x%01X\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
+    // printf("PC: 0x%03X\nOPCODE: 0x%04X\nNNN: 0x%03X\nNN: 0x%02X\nN: 0x%01X\nX: 0x%01X\nY: 0x%01X\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
     
     this->PC += 2;
 
@@ -190,8 +214,32 @@ void CPU::CPUTick() {
         case 0xC000: // Vx = rand() & NN
             this->V[opcode.X] = (this->m_rng_dist255(this->m_rng)) & opcode.NN;
             break;
-        case 0xD000: // Draw at Vx, Vn
-            // TODO: Implement
+        case 0xD000: { // Draw at Vx, Vn
+                uint8_t x = this->V[opcode.X];
+                uint8_t y = this->V[opcode.Y];
+
+                this->V[0xF] = 0; // Reset the "collision" flag
+
+                for (uint8_t row = 0; row < opcode.N; row++) {
+                    uint8_t sprite_byte = this->Memory[this->I + row];
+
+                    for (uint8_t col = 0; col < 8; col++) {
+                        uint8_t sprite_pixel = sprite_byte & (0x80 >> col);
+                        // Cast every 4 uint8_t to 1 uint32_t RGBA pixel
+                        uint32_t* screen_pixel = (uint32_t*)&this->Video[((y + row) * VIDEO_WIDTH + (x + col)) * 4];
+
+                        if (sprite_pixel) {
+                            if (*screen_pixel == 0xFFFFFFFF) {
+                                this->V[0xF] = 1; // Set VF for collision detection
+                            }
+
+                            *screen_pixel ^= 0xFFFFFFFF; // XOR with 0xFFFFFFFF because we're only using monochrome
+                        }
+                    }
+                }
+
+                this->m_video_texture.update(this->Video);
+            }
             break;
         case 0xE000:
             switch (opcode.opcode & 0xF0FF) {
