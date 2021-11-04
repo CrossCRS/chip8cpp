@@ -215,32 +215,32 @@ void CPU::CPUTick() {
             this->V[opcode.X] = (this->m_rng_dist255(this->m_rng)) & opcode.NN;
             break;
         case 0xD000: { // Draw at Vx, Vn
-                uint8_t x = this->V[opcode.X];
-                uint8_t y = this->V[opcode.Y];
+            uint8_t x = this->V[opcode.X];
+            uint8_t y = this->V[opcode.Y];
 
-                this->V[0xF] = 0; // Reset the "collision" flag
+            this->V[0xF] = 0; // Reset the "collision" flag
 
-                for (uint8_t row = 0; row < opcode.N; row++) {
-                    uint8_t sprite_byte = this->Memory[this->I + row];
+            for (uint8_t row = 0; row < opcode.N; row++) {
+                uint8_t sprite_byte = this->Memory[this->I + row];
 
-                    for (uint8_t col = 0; col < 8; col++) {
-                        uint8_t sprite_pixel = sprite_byte & (0x80 >> col);
-                        // Cast every 4 uint8_t to 1 uint32_t RGBA pixel
-                        uint32_t* screen_pixel = (uint32_t*)&this->Video[((y + row) * VIDEO_WIDTH + (x + col)) * 4];
+                for (uint8_t col = 0; col < 8; col++) {
+                    uint8_t sprite_pixel = sprite_byte & (0x80 >> col);
+                    // Cast every 4 uint8_t to 1 uint32_t RGBA pixel
+                    uint32_t* screen_pixel = (uint32_t*)&this->Video[((y + row) * VIDEO_WIDTH + (x + col)) * 4];
 
-                        if (sprite_pixel) {
-                            if (*screen_pixel == 0xFFFFFFFF) {
-                                this->V[0xF] = 1; // Set VF for collision detection
-                            }
-
-                            *screen_pixel ^= 0xFFFFFFFF; // XOR with 0xFFFFFFFF because we're only using monochrome
+                    if (sprite_pixel) {
+                        if (*screen_pixel == 0xFFFFFFFF) {
+                            this->V[0xF] = 1; // Set VF for collision detection
                         }
+
+                        *screen_pixel ^= 0xFFFFFFFF; // XOR with 0xFFFFFFFF because we're only using monochrome
                     }
                 }
-
-                this->m_video_texture.update(this->Video);
             }
+
+            this->m_video_texture.update(this->Video);
             break;
+        }
         case 0xE000:
             switch (opcode.opcode & 0xF0FF) {
                 case 0xE09E: // Skip next instruction if key[Vx] is pressed
