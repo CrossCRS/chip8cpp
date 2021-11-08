@@ -6,6 +6,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#define HUD_TEXT_COLOR(val) (val ? ImVec4(1.0, 1.0, 1.0, 1.0) : ImVec4(0.5, 0.5, 0.5, 1.0))
+
 namespace chip8 {
     class HUD {
         public:

@@ -103,7 +103,11 @@ void CPU::loadFontset() {
     }
 }
 
-void CPU::cpuTick() {
+void CPU::cpuTick(bool ignoreHalted) {
+    if (this->isHalted && !ignoreHalted) {
+        return;
+    }
+
     Opcode opcode = this->decodeOpcode();
     // printf("PC: 0x%03X\nOPCODE: 0x%04X\nNNN: 0x%03X\nNN: 0x%02X\nN: 0x%01X\nX: 0x%01X\nY: 0x%01X\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
     
@@ -303,7 +307,11 @@ void CPU::cpuTick() {
     }
 }
 
-void CPU::timersTick() {
+void CPU::timersTick(bool ignoreHalted) {
+    if (this->isHalted && !ignoreHalted) {
+        return;
+    }
+    
     if (this->delayTimer > 0) { 
         this->delayTimer--;
     }

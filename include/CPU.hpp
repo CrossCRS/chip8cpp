@@ -45,8 +45,8 @@ namespace chip8 {
 
             void reset();
             Opcode decodeOpcode();
-            void cpuTick(); // Around 500Hz, should be configurable
-            void timersTick(); // Always 60Hz
+            void cpuTick(bool ignoreHalted = false); // Around 500Hz, should be configurable
+            void timersTick(bool ignoreHalted = false); // Always 60Hz
 
             sf::Sprite& getVideoSprite();
         private:
