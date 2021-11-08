@@ -2,68 +2,66 @@
 
 using namespace chip8;
 
-CPU::CPU() : m_rng(m_random_device()), m_rng_dist255(0, 255) {
-    this->m_video_texture.create(VIDEO_WIDTH, VIDEO_HEIGHT);
-    this->m_sprite.setTexture(this->m_video_texture);
-    this->m_sprite.setScale(20, 20);
+CPU::CPU() : rng(randomDevice()), rngDist255(0, 255) {
+    this->videoTexture.create(VIDEO_WIDTH, VIDEO_HEIGHT);
+    this->sprite.setTexture(this->videoTexture);
+    this->sprite.setScale(20, 20);
 
-    this->Reset();
+    this->reset();
 }
 
-CPU::~CPU() = default;
-
-sf::Sprite& CPU::GetVideoSprite() {
-    return this->m_sprite;
+sf::Sprite& CPU::getVideoSprite() {
+    return this->sprite;
 }
 
-void CPU::Reset() {
-    memset(this->V, 0, sizeof(this->V));
+void CPU::reset() {
+    this->V.fill(0);
     this->I = 0;
 
     this->PC = 0x200; // Programs start at 0x200
-    memset(this->S, 0, sizeof(this->S));
+    this->S.fill(0);
     this->SP = -1;
 
     this->DT = 0;
     this->ST = 0;
 
-    memset(this->Memory, 0, sizeof(this->Memory));
-    memset(this->Video, 0, sizeof(this->Video));
+    memset(this->memory, 0, sizeof(this->memory));
+    memset(this->videoMemory, 0, sizeof(this->videoMemory));
 
-    this->DelayTimer = 0;
-    this->SoundTimer = 0;
+    this->delayTimer = 0;
+    this->soundTimer = 0;
 
-    this->LoadFontset();
+    this->loadFontset();
 
-    this->IsHalted = false;
+    this->isHalted = false;
 
     // Insert testing stuff...
-    /*this->Memory[0x200] = 0x00;
-    this->Memory[0x201] = 0xE0; // CLS
-    this->Memory[0x202] = 0x12;
-    this->Memory[0x203] = 0x00; // JMP 0x200*/
-    this->Memory[0x200] = 0xA2;
-    this->Memory[0x201] = 0x0A;
-    this->Memory[0x202] = 0x60;
-    this->Memory[0x203] = 0x0A;
-    this->Memory[0x204] = 0x61;
-    this->Memory[0x205] = 0x05;
-    this->Memory[0x206] = 0xD0;
-    this->Memory[0x207] = 0x17;
-    this->Memory[0x208] = 0x12;
-    this->Memory[0x209] = 0x08;
-    this->Memory[0x20A] = 0x7C;
-    this->Memory[0x20B] = 0x40;
-    this->Memory[0x20C] = 0x40;
-    this->Memory[0x20D] = 0x7C;
-    this->Memory[0x20E] = 0x40;
-    this->Memory[0x20F] = 0x40;
-    this->Memory[0x210] = 0x7C;
+    /*this->memory[0x200] = 0x00;
+    this->memory[0x201] = 0xE0; // CLS
+    this->memory[0x202] = 0x12;
+    this->memory[0x203] = 0x00; // JMP 0x200*/
+    this->memory[0x200] = 0xA2;
+    this->memory[0x201] = 0x0A;
+    this->memory[0x202] = 0x60;
+    this->memory[0x203] = 0x0A;
+    this->memory[0x204] = 0x61;
+    this->memory[0x205] = 0x05;
+    this->memory[0x206] = 0xD0;
+    this->memory[0x207] = 0x17;
+    this->memory[0x208] = 0x12;
+    this->memory[0x209] = 0x08;
+    this->memory[0x20A] = 0x7C;
+    this->memory[0x20B] = 0x40;
+    this->memory[0x20C] = 0x40;
+    this->memory[0x20D] = 0x7C;
+    this->memory[0x20E] = 0x40;
+    this->memory[0x20F] = 0x40;
+    this->memory[0x210] = 0x7C;
 }
 
-Opcode CPU::DecodeOpcode() {
+Opcode CPU::decodeOpcode() {
     // Get two opcode bytes from memory
-    uint16_t opcode = (this->Memory[this->PC] << 8) | this->Memory[this->PC+1];
+    uint16_t opcode = (this->memory[this->PC] << 8) | this->memory[this->PC+1];
     Opcode decoded_opcode;
     
     decoded_opcode.opcode = opcode;
@@ -77,10 +75,10 @@ Opcode CPU::DecodeOpcode() {
     return decoded_opcode;
 }
 
-void CPU::LoadFontset() {
+void CPU::loadFontset() {
     const uint8_t FONTSET_SIZE = 80;
 
-    uint8_t fontset[FONTSET_SIZE] =
+    std::array<uint8_t, FONTSET_SIZE> fontset =
     {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -101,12 +99,12 @@ void CPU::LoadFontset() {
     };
 
     for (uint8_t i = 0; i < FONTSET_SIZE; i++) {
-        this->Memory[MEMORY_FONT_START_ADDRESS + i] = fontset[i];
+        this->memory[MEMORY_FONT_START_ADDRESS + i] = fontset[i];
     }
 }
 
-void CPU::CPUTick() {
-    Opcode opcode = this->DecodeOpcode();
+void CPU::cpuTick() {
+    Opcode opcode = this->decodeOpcode();
     // printf("PC: 0x%03X\nOPCODE: 0x%04X\nNNN: 0x%03X\nNN: 0x%02X\nN: 0x%01X\nX: 0x%01X\nY: 0x%01X\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
     
     this->PC += 2;
@@ -115,14 +113,14 @@ void CPU::CPUTick() {
         case 0x0000:
             switch (opcode.opcode) {
                 case 0x00E0: // CLS - clear screen
-                    memset(this->Video, 0, sizeof(this->Video));
-                    this->m_video_texture.update(this->Video);
+                    memset(this->videoMemory, 0, sizeof(this->videoMemory));
+                    this->videoTexture.update(this->videoMemory);
                     break;
                 case 0x00EE: // RET - return from subroutine
                     if (this->SP == 0) {
                         // Stack underflow
                         // TODO: Error handling
-                        this->IsHalted = true;
+                        this->isHalted = true;
                     } else {
                         this->PC = this->S[this->SP];
                         this->SP--;
@@ -137,7 +135,7 @@ void CPU::CPUTick() {
             if (this->SP >= STACK_SIZE - 1) {
                 // Stack overflow
                 // TODO: Error handling
-                this->IsHalted = true;
+                this->isHalted = true;
             } else {
                 this->SP++; // Increment stack pointer
                 this->S[this->SP] = this->PC; // Store current program counter on the stack
@@ -204,8 +202,9 @@ void CPU::CPUTick() {
             }
             break;
         case 0x9000: // SNE Vx, Vy - skip next instruction if Vx != Vy
-            if (this->V[opcode.X] != this->V[opcode.Y])
+            if (this->V[opcode.X] != this->V[opcode.Y]) {
                 this->PC += 2;
+            }
             break;
         case 0xA000: // LD I, addr - I = NNN
             this->I = opcode.NNN;
@@ -214,7 +213,7 @@ void CPU::CPUTick() {
             this->PC = this->V[0x0] + opcode.NNN;
             break;
         case 0xC000: // Vx = rand() & NN
-            this->V[opcode.X] = (this->m_rng_dist255(this->m_rng)) & opcode.NN;
+            this->V[opcode.X] = (this->rngDist255(this->rng)) & opcode.NN;
             break;
         case 0xD000: { // Draw at Vx, Vn
             uint8_t x = this->V[opcode.X];
@@ -223,12 +222,12 @@ void CPU::CPUTick() {
             this->V[0xF] = 0; // Reset the "collision" flag
 
             for (uint8_t row = 0; row < opcode.N; row++) {
-                uint8_t sprite_byte = this->Memory[this->I + row];
+                uint8_t sprite_byte = this->memory[this->I + row];
 
                 for (uint8_t col = 0; col < 8; col++) {
                     uint8_t sprite_pixel = sprite_byte & (0x80 >> col);
                     // Cast every 4 uint8_t to 1 uint32_t RGBA pixel
-                    auto screen_pixel = (uint32_t*)&this->Video[((y + row) * VIDEO_WIDTH + (x + col)) * 4];
+                    auto screen_pixel = (uint32_t*)&this->videoMemory[((y + row) * VIDEO_WIDTH + (x + col)) * 4];
 
                     if (sprite_pixel) {
                         if (*screen_pixel == 0xFFFFFFFF) {
@@ -240,7 +239,7 @@ void CPU::CPUTick() {
                 }
             }
 
-            this->m_video_texture.update(this->Video);
+            this->videoTexture.update(this->videoMemory);
             break;
         }
         case 0xE000:
@@ -258,16 +257,16 @@ void CPU::CPUTick() {
         case 0xF000:
             switch (opcode.opcode & 0xF0FF) {
                 case 0xF007: // Set Vx to current delay timer
-                    this->V[opcode.X] = this->DelayTimer;
+                    this->V[opcode.X] = this->delayTimer;
                     break;
                 case 0xF00A: // Wait for key press and assign result to Vx
                     // TODO: Implement
                     break;
                 case 0xF015: // Set delay timer to Vx
-                    this->DelayTimer = this->V[opcode.X];
+                    this->delayTimer = this->V[opcode.X];
                     break;
                 case 0xF018: // Set sound timer to Vx
-                    this->SoundTimer = this->V[opcode.X];
+                    this->soundTimer = this->V[opcode.X];
                     break;
                 case 0xF01E: // I += Vx
                     this->I += this->V[opcode.X];
@@ -278,20 +277,20 @@ void CPU::CPUTick() {
                 case 0xF033: { // Store BCD of Vx in memory at address I
                     uint8_t value = this->V[opcode.X];
                     for (int offset = 2; offset >= 0; offset--) {
-                        this->Memory[this->I + offset] = value % 10;
+                        this->memory[this->I + offset] = value % 10;
                         value /= 10;
                     }
                     break;
                 }
                 case 0xF055: { // Store V0 to Vx in memory starting at address I
-                    for (int i; i <= opcode.X; i++) {
-                        this->Memory[this->I + i] = this->V[i];
+                    for (int i = 0; i <= opcode.X; i++) {
+                        this->memory[this->I + i] = this->V[i];
                     }
                     break;
                 }
                 case 0xF065: { // Fill V0 to Vx with values from memory starting at address I
-                    for (int i; i <= opcode.X; i++) {
-                        this->V[i] = this->Memory[this->I + i];
+                    for (int i = 0; i <= opcode.X; i++) {
+                        this->V[i] = this->memory[this->I + i];
                     }
                     break;
                 }
@@ -304,12 +303,12 @@ void CPU::CPUTick() {
     }
 }
 
-void CPU::TimersTick() {
-    if (this->DelayTimer > 0) { 
-        this->DelayTimer--;
+void CPU::timersTick() {
+    if (this->delayTimer > 0) { 
+        this->delayTimer--;
     }
 
-    if (this->SoundTimer > 0) {
-        this->SoundTimer--;
+    if (this->soundTimer > 0) {
+        this->soundTimer--;
     }
 }

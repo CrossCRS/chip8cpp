@@ -9,4 +9,4 @@ namespace chip8 {
         uint8_t N; // 4-bit constant
         uint8_t X, Y; // 4-bit register identifiers
     };
-}
+} // namespace chip8

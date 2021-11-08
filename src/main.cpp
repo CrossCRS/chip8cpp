@@ -1,8 +1,8 @@
-#include <cstdio>
 #include "Emulator.hpp"
+#include <cstdio>
 
 int main() {
     chip8::Emulator emulator;
-    emulator.Run();
+    emulator.run();
     return 0;
 }

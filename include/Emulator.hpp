@@ -1,29 +1,29 @@
-#include <cstdio>
-#include <SFML/Graphics.hpp>
-
-#include "imgui.h"
-#include "imgui-SFML.h"
-
+#pragma once
 #include "GUI/HUD.hpp"
 #include "CPU.hpp"
+#include "imgui-SFML.h"
+#include "imgui.h"
+
+#include <SFML/Graphics.hpp>
+
+#include <cstdio>
 
 namespace chip8 {
     class Emulator {
         public:
             Emulator();
-            ~Emulator();
             
-            void Run();
+            void run();
         private:
-            sf::RenderWindow m_window;
-            CPU m_cpu;
-            HUD m_hud;
+            sf::RenderWindow window;
+            CPU cpu;
+            HUD hud;
 
-            float m_cpu_timer;
-            float m_timers_timer;
-            float m_cpu_clock;
-            float m_timers_clock;
+            float cpuTimer;
+            float timersTimer;
+            float cpuClock;
+            float timersClock;
 
-            void Update(float delta);
+            void update(float delta);
     };
-}
+} // namespace chip8

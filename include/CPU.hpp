@@ -1,12 +1,14 @@
 // https://en.wikipedia.org/wiki/CHIP-8
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.2
 #pragma once
+#include "Opcode.hpp"
+
+#include <SFML/Graphics.hpp>
+
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <random>
-#include <SFML/Graphics.hpp>
-#include "Opcode.hpp"
 
 namespace chip8 {
     class CPU {
@@ -20,42 +22,41 @@ namespace chip8 {
             static const int VIDEO_WIDTH = 64;
             static const int VIDEO_HEIGHT = 32;
 
-            uint8_t V[V_REGISTER_SIZE]; // V0-VF registers
+            std::array<uint8_t, V_REGISTER_SIZE> V; // V0-VF registers
             uint16_t I; // 16-bit address register
             
             uint16_t PC; // 16-bit program counter register
-            uint16_t S[STACK_SIZE]; // 16-bit stack
+            std::array<uint16_t, STACK_SIZE> S; // 16-bit stack
             uint8_t SP; // 8-bit stack pointer register
 
             uint8_t DT; // 8-bit delay timer register
             uint8_t ST; // 8-bit sound timer register
 
-            uint8_t Memory[MEMORY_SIZE]; // 4KB of 8-bit RAM (BIG ENDIAN)
+            // Need to be C-style arrays to work with SFML and Imgui Mem Editor
+            uint8_t memory[MEMORY_SIZE]; // 4KB of 8-bit RAM (BIG ENDIAN)
+            uint8_t videoMemory[VIDEO_WIDTH * VIDEO_HEIGHT * 4]; // 64px x 32px video buffer
 
-            uint8_t DelayTimer;
-            uint8_t SoundTimer;
+            uint8_t delayTimer;
+            uint8_t soundTimer;
 
-            uint8_t Video[VIDEO_WIDTH * VIDEO_HEIGHT * 4];
-
-            bool IsHalted;
+            bool isHalted;
 
             CPU();
-            ~CPU();
 
-            void Reset();
-            Opcode DecodeOpcode();
-            void CPUTick(); // Around 500Hz, should be configurable
-            void TimersTick(); // Always 60Hz
+            void reset();
+            Opcode decodeOpcode();
+            void cpuTick(); // Around 500Hz, should be configurable
+            void timersTick(); // Always 60Hz
 
-            sf::Sprite& GetVideoSprite();
+            sf::Sprite& getVideoSprite();
         private:
-            std::random_device m_random_device;
-            std::mt19937 m_rng;
-            std::uniform_int_distribution<> m_rng_dist255;
+            std::random_device randomDevice;
+            std::mt19937 rng;
+            std::uniform_int_distribution<> rngDist255;
 
-            sf::Texture m_video_texture;
-            sf::Sprite m_sprite;
+            sf::Texture videoTexture;
+            sf::Sprite sprite;
 
-            void LoadFontset();
+            void loadFontset();
     };
-}
+} // namespace chip8

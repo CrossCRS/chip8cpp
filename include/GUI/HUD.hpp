@@ -1,3 +1,4 @@
+#pragma once
 #include "CPU.hpp"
 #include "imgui_memory_editor.hpp"
 #include "imgui-SFML.h"
@@ -12,7 +13,7 @@ namespace chip8 {
 
             void draw();
         private:
-            CPU& m_cpu;
-            MemoryEditor m_memeditor;
+            CPU& cpu;
+            MemoryEditor memoryEditor;
     };
-}
+} // namespace chip8

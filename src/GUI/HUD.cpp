@@ -2,7 +2,7 @@
 
 using namespace chip8;
 
-HUD::HUD(CPU& cpu) : m_cpu(cpu) { }
+HUD::HUD(CPU& cpu) : cpu(cpu) { }
 
 void HUD::draw() {
     ImGui::Begin("CPU");
@@ -15,23 +15,23 @@ void HUD::draw() {
         ImGui::TableNextColumn();
         ImGui::Text("PC");
         ImGui::TableNextColumn();
-        ImGui::Text("0x%03X", this->m_cpu.PC);
+        ImGui::Text("0x%03X", this->cpu.PC);
         // I
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
         ImGui::Text("I");
         ImGui::TableNextColumn();
-        ImGui::Text("0x%08X", this->m_cpu.I);
+        ImGui::Text("0x%08X", this->cpu.I);
         for (int n = 0; n < CPU::V_REGISTER_SIZE; n++) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::Text("V%X", n);
             ImGui::TableNextColumn();
-            ImGui::Text("0x%02X", this->m_cpu.V[n]);
+            ImGui::Text("0x%02X", this->cpu.V[n]);
         }
         ImGui::EndTable();
     }
     ImGui::End();
 
-    m_memeditor.DrawWindow("Memory", this->m_cpu.Memory, CPU::MEMORY_SIZE);
+    this->memoryEditor.DrawWindow("Memory", this->cpu.memory, CPU::MEMORY_SIZE);
 }
