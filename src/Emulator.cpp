@@ -2,7 +2,10 @@
 
 using namespace chip8;
 
-Emulator::Emulator() : m_window(sf::VideoMode(1024, 512), "Chip8-CPP", sf::Style::Titlebar | sf::Style::Close), m_cpu() {
+Emulator::Emulator() : m_window(sf::VideoMode(1280, 640), "Chip8-CPP", sf::Style::Titlebar | sf::Style::Close), m_cpu(), m_hud(m_cpu) {
+    m_window.setFramerateLimit(60);
+    ImGui::SFML::Init(m_window);
+
     this->m_cpu_timer = 0;
     this->m_timers_timer = 0;
 
@@ -10,7 +13,7 @@ Emulator::Emulator() : m_window(sf::VideoMode(1024, 512), "Chip8-CPP", sf::Style
     this->m_timers_clock = 60; // 60Hz
 }
 
-Emulator::~Emulator() { }
+Emulator::~Emulator() = default;
 
 void Emulator::Run() {
     sf::Clock clock;
@@ -19,18 +22,26 @@ void Emulator::Run() {
         sf::Event event;
 
         while (m_window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+            ImGui::SFML::ProcessEvent(event);
+
+            if (event.type == sf::Event::Closed) {
                 m_window.close();
+            }
         }
 
         sf::Time elapsed = clock.restart();
 
+        ImGui::SFML::Update(m_window, elapsed);
         this->Update(elapsed.asSeconds());
 
         m_window.clear();
         m_window.draw(this->m_cpu.GetVideoSprite());
+
+        m_hud.draw();
+        ImGui::SFML::Render(m_window);
         m_window.display();
     }
+    ImGui::SFML::Shutdown();
 }
 
 void Emulator::Update(float delta) {

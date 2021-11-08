@@ -2,15 +2,15 @@
 
 using namespace chip8;
 
-CPU::CPU() : m_random_device(), m_rng(m_random_device()), m_rng_dist255(0, 255) {
+CPU::CPU() : m_rng(m_random_device()), m_rng_dist255(0, 255) {
     this->m_video_texture.create(VIDEO_WIDTH, VIDEO_HEIGHT);
     this->m_sprite.setTexture(this->m_video_texture);
-    this->m_sprite.setScale(16, 16);
+    this->m_sprite.setScale(20, 20);
 
     this->Reset();
 }
 
-CPU::~CPU() { }
+CPU::~CPU() = default;
 
 sf::Sprite& CPU::GetVideoSprite() {
     return this->m_sprite;
@@ -78,7 +78,7 @@ Opcode CPU::DecodeOpcode() {
 }
 
 void CPU::LoadFontset() {
-    const uint FONTSET_SIZE = 80;
+    const uint8_t FONTSET_SIZE = 80;
 
     uint8_t fontset[FONTSET_SIZE] =
     {
@@ -100,7 +100,7 @@ void CPU::LoadFontset() {
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
-    for (uint i = 0; i < FONTSET_SIZE; i++) {
+    for (uint8_t i = 0; i < FONTSET_SIZE; i++) {
         this->Memory[MEMORY_FONT_START_ADDRESS + i] = fontset[i];
     }
 }
@@ -115,9 +115,11 @@ void CPU::CPUTick() {
         case 0x0000:
             switch (opcode.opcode) {
                 case 0x00E0: // CLS - clear screen
+                    memset(this->Video, 0, sizeof(this->Video));
+                    this->m_video_texture.update(this->Video);
                     break;
                 case 0x00EE: // RET - return from subroutine
-                    if (this->SP < 0) {
+                    if (this->SP == 0) {
                         // Stack underflow
                         // TODO: Error handling
                         this->IsHalted = true;
@@ -226,7 +228,7 @@ void CPU::CPUTick() {
                 for (uint8_t col = 0; col < 8; col++) {
                     uint8_t sprite_pixel = sprite_byte & (0x80 >> col);
                     // Cast every 4 uint8_t to 1 uint32_t RGBA pixel
-                    uint32_t* screen_pixel = (uint32_t*)&this->Video[((y + row) * VIDEO_WIDTH + (x + col)) * 4];
+                    auto screen_pixel = (uint32_t*)&this->Video[((y + row) * VIDEO_WIDTH + (x + col)) * 4];
 
                     if (sprite_pixel) {
                         if (*screen_pixel == 0xFFFFFFFF) {
@@ -275,20 +277,20 @@ void CPU::CPUTick() {
                     break;
                 case 0xF033: { // Store BCD of Vx in memory at address I
                     uint8_t value = this->V[opcode.X];
-                    for (uint8_t offset = 2; offset >= 0; offset--) {
+                    for (int offset = 2; offset >= 0; offset--) {
                         this->Memory[this->I + offset] = value % 10;
                         value /= 10;
                     }
                     break;
                 }
                 case 0xF055: { // Store V0 to Vx in memory starting at address I
-                    for (uint8_t i; i <= opcode.X; i++) {
+                    for (int i; i <= opcode.X; i++) {
                         this->Memory[this->I + i] = this->V[i];
                     }
                     break;
                 }
                 case 0xF065: { // Fill V0 to Vx with values from memory starting at address I
-                    for (uint8_t i; i <= opcode.X; i++) {
+                    for (int i; i <= opcode.X; i++) {
                         this->V[i] = this->Memory[this->I + i];
                     }
                     break;
@@ -303,9 +305,11 @@ void CPU::CPUTick() {
 }
 
 void CPU::TimersTick() {
-    if (this->DelayTimer > 0) 
+    if (this->DelayTimer > 0) { 
         this->DelayTimer--;
+    }
 
-    if (this->SoundTimer > 0)
+    if (this->SoundTimer > 0) {
         this->SoundTimer--;
+    }
 }

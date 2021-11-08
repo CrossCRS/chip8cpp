@@ -1,6 +1,10 @@
 #include <cstdio>
 #include <SFML/Graphics.hpp>
 
+#include "imgui.h"
+#include "imgui-SFML.h"
+
+#include "GUI/HUD.hpp"
 #include "CPU.hpp"
 
 namespace chip8 {
@@ -13,6 +17,7 @@ namespace chip8 {
         private:
             sf::RenderWindow m_window;
             CPU m_cpu;
+            HUD m_hud;
 
             float m_cpu_timer;
             float m_timers_timer;

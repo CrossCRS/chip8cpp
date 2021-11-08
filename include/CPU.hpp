@@ -10,16 +10,17 @@
 
 namespace chip8 {
     class CPU {
-        static const uint STACK_SIZE = 16;
-        static const uint MEMORY_SIZE = 4096;
-        static const uint MEMORY_PROGRAM_START_ADDRESS = 0x200;
-        static const uint MEMORY_FONT_START_ADDRESS = 0x50;
-
-        static const uint VIDEO_WIDTH = 64;
-        static const uint VIDEO_HEIGHT = 32;
-
         public:
-            uint8_t V[16]; // V0-VF registers
+            static const int STACK_SIZE = 16;
+            static const int V_REGISTER_SIZE = 16;
+            static const int MEMORY_SIZE = 4096;
+            static const int MEMORY_PROGRAM_START_ADDRESS = 0x200;
+            static const int MEMORY_FONT_START_ADDRESS = 0x50;
+
+            static const int VIDEO_WIDTH = 64;
+            static const int VIDEO_HEIGHT = 32;
+
+            uint8_t V[V_REGISTER_SIZE]; // V0-VF registers
             uint16_t I; // 16-bit address register
             
             uint16_t PC; // 16-bit program counter register
