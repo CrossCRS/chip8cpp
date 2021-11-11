@@ -2,6 +2,7 @@
 .cache
 build
 
+imgui.ini
 Chip8CPP
 
 CMakeLists.txt.user
