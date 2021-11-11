@@ -334,6 +334,7 @@ void CPU::timersTick(bool ignoreHalted) {
     }
 
     if (this->soundTimer > 0) {
+        // TODO: Sound
         this->soundTimer--;
     }
 }
