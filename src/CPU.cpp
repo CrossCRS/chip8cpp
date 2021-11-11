@@ -20,7 +20,7 @@ void CPU::reset() {
 
     this->PC = 0x200; // Programs start at 0x200
     this->S.fill(0);
-    this->SP = -1;
+    this->SP = 0;
 
     this->DT = 0;
     this->ST = 0;
@@ -109,8 +109,7 @@ void CPU::cpuTick(bool ignoreHalted) {
     }
 
     Opcode opcode = this->decodeOpcode();
-    // printf("PC: 0x%03X\nOPCODE: 0x%04X\nNNN: 0x%03X\nNN: 0x%02X\nN: 0x%01X\nX: 0x%01X\nY: 0x%01X\n\n", this->PC, opcode.opcode, opcode.NNN, opcode.NN, opcode.N, opcode.X, opcode.Y);
-    
+
     this->PC += 2;
 
     switch (opcode.opcode & 0xF000) {
