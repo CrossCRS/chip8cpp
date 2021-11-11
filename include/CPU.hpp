@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <random>
 
 namespace chip8 {
@@ -21,6 +22,27 @@ namespace chip8 {
 
             static const int VIDEO_WIDTH = 64;
             static const int VIDEO_HEIGHT = 32;
+
+            static const int KEYPAD_SIZE = 16;
+
+            const sf::Keyboard::Key KEYMAP[KEYPAD_SIZE] = {
+                sf::Keyboard::X,
+                sf::Keyboard::Num1,
+                sf::Keyboard::Num2,
+                sf::Keyboard::Num3,
+                sf::Keyboard::Q,
+                sf::Keyboard::W,
+                sf::Keyboard::E,
+                sf::Keyboard::A,
+                sf::Keyboard::S,
+                sf::Keyboard::F,
+                sf::Keyboard::Z,
+                sf::Keyboard::C,
+                sf::Keyboard::Num4,
+                sf::Keyboard::R,
+                sf::Keyboard::F,
+                sf::Keyboard::V,
+            };
 
             std::array<uint8_t, V_REGISTER_SIZE> V; // V0-VF registers
             uint16_t I; // 16-bit address register
@@ -43,6 +65,7 @@ namespace chip8 {
 
             CPU();
 
+            void loadRomFromFile(const char *filename);
             void reset();
             Opcode decodeOpcode();
             void cpuTick(bool ignoreHalted = false); // Around 500Hz, should be configurable

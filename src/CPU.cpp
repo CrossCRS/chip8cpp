@@ -248,10 +248,14 @@ void CPU::cpuTick(bool ignoreHalted) {
         case 0xE000:
             switch (opcode.opcode & 0xF0FF) {
                 case 0xE09E: // Skip next instruction if key[Vx] is pressed
-                    // TODO: Implement
+                    if (sf::Keyboard::isKeyPressed(this->KEYMAP[this->V[opcode.X]])) {
+                        this->PC += 2;
+                    }
                     break;
                 case 0xE0A1: // Skip next instruction if key[Vx] is NOT pressed
-                    // TODO: Implement
+                    if (!sf::Keyboard::isKeyPressed(this->KEYMAP[this->V[opcode.X]])) {
+                        this->PC += 2;
+                    }
                     break;
                 default: // Illegal opcode
                     break;
@@ -262,9 +266,20 @@ void CPU::cpuTick(bool ignoreHalted) {
                 case 0xF007: // Set Vx to current delay timer
                     this->V[opcode.X] = this->delayTimer;
                     break;
-                case 0xF00A: // Wait for key press and assign result to Vx
-                    // TODO: Implement
+                case 0xF00A: {// Wait for key press and assign result to Vx
+                    bool pressed = false;
+                    for (int i = 0; i <= this->KEYPAD_SIZE; i++) {
+                        if (sf::Keyboard::isKeyPressed(this->KEYMAP[i])) {
+                            this->V[opcode.X] = i;
+                            pressed = true;
+                        }
+                    }
+
+                    if (!pressed) {
+                        this->PC -= 2; // Repeat the instruction
+                    }
                     break;
+                }
                 case 0xF015: // Set delay timer to Vx
                     this->delayTimer = this->V[opcode.X];
                     break;
