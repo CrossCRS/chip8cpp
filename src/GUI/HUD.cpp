@@ -5,6 +5,10 @@ using namespace chip8;
 HUD::HUD(CPU& cpu) : cpu(cpu) { }
 
 void HUD::draw() {
+    ImGui::SetNextWindowSize(ImVec2(550, 450));
+    ImGui::SetNextWindowPos(ImVec2(730, 0));
+    ImGui::SetNextWindowCollapsed(true, ImGuiCond_Once);
+
     ImGui::Begin("Debug", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     ImGui::BeginGroup();
