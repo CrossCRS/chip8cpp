@@ -8,6 +8,8 @@ void HUD::draw() {
     ImGui::Begin("Debug", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
 
     ImGui::BeginGroup();
+    if (ImGui::Button("Open ROM")) { this->openFileBrowser = true; }
+    ImGui::SameLine();
     if (ImGui::Button("Reset")) { this->cpu.reset(); }
     ImGui::SameLine();
     if (ImGui::Button("CPU Tick")) { this->cpu.cpuTick(true); }
@@ -88,4 +90,14 @@ void HUD::draw() {
     }
 
     ImGui::End();
+
+    if (this->openFileBrowser) {
+        ImGui::OpenPopup("Open File");
+        this->openFileBrowser = false;
+    }
+
+    if (this->fileBrowser.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 500), ".ch8")) {
+        this->cpu.reset();
+        this->cpu.loadRomFromFile(fileBrowser.selected_path.c_str());
+    }
 }

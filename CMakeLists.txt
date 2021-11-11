@@ -8,6 +8,7 @@ find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
 find_package(ImGui-SFML REQUIRED)
 
 set(sources
+    "src/GUI/imgui_file_browser.cpp"
     "src/GUI/HUD.cpp"
     "src/Emulator.cpp"
     "src/CPU.cpp"

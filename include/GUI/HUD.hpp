@@ -1,5 +1,6 @@
 #pragma once
 #include "CPU.hpp"
+#include "imgui_file_browser.hpp"
 #include "imgui_memory_editor.hpp"
 #include "imgui-SFML.h"
 #include "imgui.h"
@@ -17,5 +18,8 @@ namespace chip8 {
         private:
             CPU& cpu;
             MemoryEditor memoryEditor;
+            imgui_addons::ImGuiFileBrowser fileBrowser;
+
+            bool openFileBrowser = false;
     };
 } // namespace chip8

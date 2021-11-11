@@ -65,7 +65,7 @@ namespace chip8 {
 
             CPU();
 
-            void loadRomFromFile(const char *filename);
+            void loadRomFromFile(const char* filename);
             void reset();
             Opcode decodeOpcode();
             void cpuTick(bool ignoreHalted = false); // Around 500Hz, should be configurable

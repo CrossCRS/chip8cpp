@@ -8,6 +8,8 @@ CPU::CPU() : rng(randomDevice()), rngDist255(0, 255) {
     this->sprite.setScale(20, 20);
 
     this->reset();
+
+    this->isHalted = true;
 }
 
 sf::Sprite& CPU::getVideoSprite() {
@@ -35,28 +37,6 @@ void CPU::reset() {
 
     this->isHalted = false;
 
-    // Insert testing stuff...
-    /*this->memory[0x200] = 0x00;
-    this->memory[0x201] = 0xE0; // CLS
-    this->memory[0x202] = 0x12;
-    this->memory[0x203] = 0x00; // JMP 0x200*/
-    this->memory[0x200] = 0xA2;
-    this->memory[0x201] = 0x0A;
-    this->memory[0x202] = 0x60;
-    this->memory[0x203] = 0x0A;
-    this->memory[0x204] = 0x61;
-    this->memory[0x205] = 0x05;
-    this->memory[0x206] = 0xD0;
-    this->memory[0x207] = 0x17;
-    this->memory[0x208] = 0x12;
-    this->memory[0x209] = 0x08;
-    this->memory[0x20A] = 0x7C;
-    this->memory[0x20B] = 0x40;
-    this->memory[0x20C] = 0x40;
-    this->memory[0x20D] = 0x7C;
-    this->memory[0x20E] = 0x40;
-    this->memory[0x20F] = 0x40;
-    this->memory[0x210] = 0x7C;
 }
 
 Opcode CPU::decodeOpcode() {
@@ -101,6 +81,29 @@ void CPU::loadFontset() {
     for (uint8_t i = 0; i < FONTSET_SIZE; i++) {
         this->memory[MEMORY_FONT_START_ADDRESS + i] = fontset[i];
     }
+}
+
+void CPU::loadRomFromFile(const char* filename) {
+    this->isHalted = true;
+
+	std::ifstream file(filename, std::ios::binary | std::ios::ate);
+
+	if (file.is_open()) {
+		std::streampos size = file.tellg();
+		char* buffer = new char[size];
+
+		file.seekg(0, std::ios::beg);
+		file.read(buffer, size);
+		file.close();
+
+		for (unsigned int i = 0; i < size; i++)	{
+			this->memory[this->MEMORY_PROGRAM_START_ADDRESS + i] = buffer[i];
+		}
+
+		delete[] buffer;
+    }
+
+    this->isHalted = false;
 }
 
 void CPU::cpuTick(bool ignoreHalted) {
