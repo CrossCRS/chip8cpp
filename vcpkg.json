@@ -1,0 +1,13 @@
+{
+    "name": "chip8cpp",
+    "version-string": "git",
+    "dependencies": [
+        { "name": "sfml", "version>=": "2.5.1#10" },
+        { "name": "imgui", "version>=": "1.85" },
+        { "name": "imgui-sfml" }
+    ],
+    "overrides": [
+        { "name": "imgui-sfml", "version": "2.3" }
+    ],
+    "builtin-baseline": "cbc22a396c88d098247fe7f79f0913a952e1f77d"
+}

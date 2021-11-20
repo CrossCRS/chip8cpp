@@ -20,10 +20,11 @@ Build Instructions
 **Linux/Unix**
 
 ```
-$ git clone https://github.com/CrossCRS/chip8cpp
+$ git clone --recurse-submodules https://github.com/CrossCRS/chip8cpp
 $ cd chip8cpp
-$ cmake .
-$ cmake --build .
+$ ./extern/vcpkg/bootstrap-vcpkg.sh
+$ cmake -G Ninja -B build -S . -DCMAKE_TOOLCHAIN_FILE=extern/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE:STRING=Release
+$ cmake --build build/
 ```
 
 Or use the provided Dockerfile
