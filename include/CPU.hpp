@@ -5,6 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -35,7 +36,7 @@ namespace chip8 {
                 sf::Keyboard::E,
                 sf::Keyboard::A,
                 sf::Keyboard::S,
-                sf::Keyboard::F,
+                sf::Keyboard::D,
                 sf::Keyboard::Z,
                 sf::Keyboard::C,
                 sf::Keyboard::Num4,

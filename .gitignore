@@ -1,4 +1,5 @@
 .vscode
+.vs
 .cache
 build
 
@@ -7,6 +8,7 @@ Chip8CPP
 
 CMakeLists.txt.user
 CMakeCache.txt
+CMakeSettings.json
 CMakeFiles
 CMakeScripts
 Testing

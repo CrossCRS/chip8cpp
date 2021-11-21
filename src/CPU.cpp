@@ -28,6 +28,7 @@ namespace chip8 {
 
         memset(this->memory, 0, sizeof(this->memory));
         memset(this->videoMemory, 0, sizeof(this->videoMemory));
+        this->videoTexture.update(this->videoMemory);
 
         this->delayTimer = 0;
         this->soundTimer = 0;
@@ -41,7 +42,7 @@ namespace chip8 {
     Opcode CPU::decodeOpcode() {
         // Get two opcode bytes from memory
         uint16_t opcode = (this->memory[this->PC] << 8) | this->memory[this->PC+1];
-        Opcode decoded_opcode;
+        Opcode decoded_opcode = {};
         
         decoded_opcode.opcode = opcode;
         // TODO: Calculate them as necessary based on current opcode?
@@ -88,18 +89,20 @@ namespace chip8 {
         std::ifstream file(filename, std::ios::binary | std::ios::ate);
 
         if (file.is_open()) {
-            std::streampos size = file.tellg();
-            char* buffer = new char[size];
+            std::streamoff size = file.tellg();
+            if (size > 0) {
+                char* buffer = new char[static_cast<size_t>(size)];
 
-            file.seekg(0, std::ios::beg);
-            file.read(buffer, size);
-            file.close();
+                file.seekg(0, std::ios::beg);
+                file.read(buffer, size);
+                file.close();
 
-            for (unsigned int i = 0; i < size; i++)	{
-                this->memory[this->MEMORY_PROGRAM_START_ADDRESS + i] = buffer[i];
+                for (long long i = 0; i < size; i++) {
+                    this->memory[this->MEMORY_PROGRAM_START_ADDRESS + i] = buffer[i];
+                }
+
+                delete[] buffer;
             }
-
-            delete[] buffer;
         }
 
         this->isHalted = false;
@@ -270,7 +273,7 @@ namespace chip8 {
                         break;
                     case 0xF00A: {// Wait for key press and assign result to Vx
                         bool pressed = false;
-                        for (int i = 0; i <= this->KEYPAD_SIZE; i++) {
+                        for (uint8_t i = 0; i <= this->KEYPAD_SIZE; i++) {
                             if (sf::Keyboard::isKeyPressed(this->KEYMAP[i])) {
                                 this->V[opcode.X] = i;
                                 pressed = true;
