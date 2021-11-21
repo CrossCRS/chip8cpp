@@ -1,12 +1,14 @@
 #ifndef IMGUIFILEBROWSER_H
 #define IMGUIFILEBROWSER_H
 
+#define __STDC_WANT_LIB_EXT1__ 1
+
 #include "imgui.h"
 #include <locale>
 #include <string>
 #include <vector>
 
-#ifndef __STDC_LIB_EXT1__
+#if !__STDC_LIB_EXT1__ && !_MSC_VER
 #define strcpy_s(dest, destsz, src) strcpy(dest, src)
 #endif
 
