@@ -1,21 +1,27 @@
-FROM alpine:3.14
+FROM ubuntu:rolling
 
-RUN apk add --no-cache \
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Warsaw
+
+RUN apt-get update && apt-get install -y \
         git \
-        sfml-dev \
-        mesa-dev \
-        build-base \
+        libsfml-dev \
+        libgl1-mesa-dev \
+        libx11-dev \
+        libxrandr-dev \
+        libxi-dev \
+        libudev-dev \
+        build-essential \
+        curl \
+        zip \
+        unzip \
+        tar \
+        pkg-config \
+        ninja-build \
         cmake 
-
-WORKDIR /usr/src/
-
-RUN git clone -b v1.85 --depth 1 https://github.com/ocornut/imgui && \
-    git clone -b v2.3 --depth 1 https://github.com/eliasdaler/imgui-sfml && \
-    cd imgui-sfml && \
-    cmake -DBUILD_SHARED_LIBS=ON -DIMGUI_DIR=/usr/src/imgui . && \
-    cmake --build . --target install
 
 COPY . /usr/src/chip8
 WORKDIR /usr/src/chip8
+RUN rm -rf Chip8CPP build/
 
-CMD ["cmake ."]
+RUN ./extern/vcpkg/bootstrap-vcpkg.sh && cmake -G Ninja -B build -S . -DCMAKE_TOOLCHAIN_FILE=extern/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE:STRING=Debug
