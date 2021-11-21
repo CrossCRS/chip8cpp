@@ -5,6 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>

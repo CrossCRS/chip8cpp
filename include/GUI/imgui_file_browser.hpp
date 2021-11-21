@@ -2,6 +2,7 @@
 #define IMGUIFILEBROWSER_H
 
 #include "imgui.h"
+#include <locale>
 #include <string>
 #include <vector>
 
@@ -52,7 +53,7 @@ namespace imgui_addons
             };
 
             //Helper Functions
-            static std::string wStringToString(const wchar_t* wchar_arr);
+            static std::string wStringToString(const wchar_t* wchar_arr, const std::locale& loc = std::locale());
             static bool alphaSortComparator(const Info& a, const Info& b);
             ImVec2 getButtonSize(std::string button_text);
 

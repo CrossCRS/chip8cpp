@@ -110,7 +110,7 @@ namespace imgui_addons
         ImGui::CloseCurrentPopup();
     }
 
-    bool ImGuiFileBrowser::showFileDialog(const std::string& label, const DialogMode mode, const ImVec2& sz_xy, const std::string& valid_types)
+    bool ImGuiFileBrowser::showFileDialog(const std::string& label, const DialogMode mode, const ImVec2& sz_xy, const std::string& _valid_types)
     {
 
         dialog_mode = mode;
@@ -138,8 +138,8 @@ namespace imgui_addons
                 selected_path.clear();
                 if(mode != DialogMode::SELECT)
                 {
-                    this->valid_types = valid_types;
-                    setValidExtTypes(valid_types);
+                    this->valid_types = _valid_types;
+                    setValidExtTypes(this->valid_types);
                 }
 
                 /* If current path is empty (can happen on Windows if user closes dialog while inside MyComputer.
@@ -363,7 +363,7 @@ namespace imgui_addons
 
                     // If dialog mode is SELECT then copy the selected dir name to the input text bar
                     if(dialog_mode == DialogMode::SELECT)
-                        strcpy(input_fn, filtered_dirs[i]->name.c_str());
+                        strcpy_s(input_fn, 256, filtered_dirs[i]->name.c_str());
 
                     if(ImGui::IsMouseDoubleClicked(0))
                     {
@@ -390,7 +390,7 @@ namespace imgui_addons
                     is_dir = false;
 
                     // If dialog mode is OPEN/SAVE then copy the selected file name to the input text bar
-                    strcpy(input_fn, filtered_files[i]->name.c_str());
+                    strcpy_s(input_fn, 256, filtered_files[i]->name.c_str());
 
                     if(ImGui::IsMouseDoubleClicked(0))
                     {
@@ -526,8 +526,8 @@ namespace imgui_addons
         bool show_error = false;
         float frame_height = ImGui::GetFrameHeight();
         float frame_height_spacing = ImGui::GetFrameHeightWithSpacing();
-        float button_width = (ext_box_width - style.ItemSpacing.x) / 2.0;
-        float buttons_xpos =  pw_size.x - button_width * 2.0 - style.ItemSpacing.x - style.WindowPadding.x;
+        float button_width = (ext_box_width - style.ItemSpacing.x) / 2.0f;
+        float buttons_xpos =  pw_size.x - button_width * 2.0f - style.ItemSpacing.x - style.WindowPadding.x;
 
         ImGui::SetCursorPosY(pw_size.y - frame_height_spacing - style.WindowPadding.y);
 
@@ -643,7 +643,7 @@ namespace imgui_addons
                         }
                         else
                         {
-                            strcpy(input_fn, element.get().c_str());
+                            strcpy_s(input_fn, 256, element.get().c_str());
                             show_inputbar_combobox = false;
                         }
                     }
@@ -859,11 +859,11 @@ namespace imgui_addons
                 if(name != "..")
                 {
                     #ifdef OSWIN
-                    std::string dir = pathdir + std::string(ent->d_name);
+                    std::string _dir = pathdir + std::string(ent->d_name);
                     // IF system file skip it...
-                    if (FILE_ATTRIBUTE_SYSTEM & GetFileAttributesA(dir.c_str()))
+                    if (FILE_ATTRIBUTE_SYSTEM & GetFileAttributesA(_dir.c_str()))
                         continue;
-                    if (FILE_ATTRIBUTE_HIDDEN & GetFileAttributesA(dir.c_str()))
+                    if (FILE_ATTRIBUTE_HIDDEN & GetFileAttributesA(_dir.c_str()))
                         is_hidden = true;
                     #else
                     if(name[0] == '.')
@@ -892,10 +892,10 @@ namespace imgui_addons
         return true;
     }
 
-    void ImGuiFileBrowser::filterFiles(int filter_mode)
+    void ImGuiFileBrowser::filterFiles(int _filter_mode)
     {
         filter_dirty = false;
-        if(filter_mode | FilterMode_Dirs)
+        if(_filter_mode | FilterMode_Dirs)
         {
             filtered_dirs.clear();
             for (std::vector<Info>::size_type i = 0; i < subdirs.size(); ++i)
@@ -904,7 +904,7 @@ namespace imgui_addons
                     filtered_dirs.push_back(&subdirs[i]);
             }
         }
-        if(filter_mode | FilterMode_Files)
+        if(_filter_mode | FilterMode_Files)
         {
             filtered_files.clear();
             for (std::vector<Info>::size_type i = 0; i < subfiles.size(); ++i)
@@ -913,9 +913,9 @@ namespace imgui_addons
                 {
                     if(filter.PassFilter(subfiles[i].name.c_str()))
                     {
-                        std::string ext = subfiles[i].name.find_last_of('.') == std::string::npos ? "" : subfiles[i].name.substr(subfiles[i].name.find_last_of('.'));
-                        std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return std::tolower(c); });
-                        if (ext.length() > 0 && find(valid_exts.begin(), valid_exts.end(),ext) != valid_exts.end())
+                        std::string _ext = subfiles[i].name.find_last_of('.') == std::string::npos ? "" : subfiles[i].name.substr(subfiles[i].name.find_last_of('.'));
+                        std::transform(_ext.begin(), _ext.end(), _ext.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(c)); });
+                        if (_ext.length() > 0 && find(valid_exts.begin(), valid_exts.end(), _ext) != valid_exts.end())
                         {
                             filtered_files.push_back(&subfiles[i]);
                         }
@@ -1036,7 +1036,7 @@ namespace imgui_addons
         valid_exts.clear();
 
         std::string valid_str_lower( valid_types_string );
-        std::transform( valid_str_lower.begin(), valid_str_lower.end(), valid_str_lower.begin(), []( unsigned char c ) { return std::tolower( c ); } );
+        std::transform(valid_str_lower.begin(), valid_str_lower.end(), valid_str_lower.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(c)); });
 
         std::string extension = "";
         std::istringstream iss(valid_str_lower);
@@ -1101,15 +1101,15 @@ namespace imgui_addons
         else
         {
             // If list of extensions has all types, no need to validate.
-            for(auto ext : valid_exts)
+            for(auto _ext : valid_exts)
             {
-                if(ext == "*.*")
+                if(_ext == "*.*")
                     return true;
             }
             size_t idx = selected_fn.find_last_of('.');
             std::string file_ext = idx == std::string::npos ? "" : selected_fn.substr(idx, selected_fn.length() - idx);
 
-            std::transform( file_ext.begin(), file_ext.end(), file_ext.begin(), []( unsigned char c ) { return std::tolower( c ); } );
+            std::transform(file_ext.begin(), file_ext.end(), file_ext.begin(), [](unsigned char c) { return static_cast<unsigned char>(std::tolower(c)); });
 
             return (std::find(valid_exts.begin(), valid_exts.end(), file_ext) != valid_exts.end());
         }
@@ -1140,9 +1140,15 @@ namespace imgui_addons
         }
     }
 
-    std::string ImGuiFileBrowser::wStringToString(const wchar_t* wchar_arr)
+    std::string ImGuiFileBrowser::wStringToString(const wchar_t* wchar_arr, const std::locale& loc)
     {
-        std::mbstate_t state = std::mbstate_t();
+        std::ostringstream stm;
+
+        while (*wchar_arr != L'\0') {
+            stm << std::use_facet< std::ctype<wchar_t> >(loc).narrow(*wchar_arr++, '?');
+        }
+        return stm.str();
+        /*std::mbstate_t state = std::mbstate_t();
 
          //MinGW bug (patched in mingw-w64), wcsrtombs doesn't ignore length parameter when dest = nullptr. Hence the large number.
         size_t len = 1 + std::wcsrtombs(nullptr, &(wchar_arr), 600000, &state);
@@ -1153,7 +1159,7 @@ namespace imgui_addons
         std::string ret_val(char_arr);
 
         delete[] char_arr;
-        return ret_val;
+        return ret_val;*/
     }
 
     bool ImGuiFileBrowser::alphaSortComparator(const Info& a, const Info& b)
