@@ -6,6 +6,10 @@
 #include <string>
 #include <vector>
 
+#ifndef __STDC_LIB_EXT1__
+#define strcpy_s(dest, destsz, src) strcpy(dest, src)
+#endif
+
 namespace imgui_addons
 {
     class ImGuiFileBrowser
