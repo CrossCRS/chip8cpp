@@ -92,8 +92,6 @@ namespace chip8 {
             ImGui::EndTabBar();
         }
 
-        ImGui::End();
-
         if (this->openFileBrowser) {
             ImGui::OpenPopup("Open File");
             this->openFileBrowser = false;
@@ -102,6 +100,9 @@ namespace chip8 {
         if (this->fileBrowser.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 500), ".ch8")) {
             this->cpu.reset();
             this->cpu.loadRomFromFile(fileBrowser.selected_path.c_str());
+            ImGui::SetWindowCollapsed(true);
         }
+
+        ImGui::End();
     }
 } // namespace chip8
