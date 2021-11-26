@@ -1,9 +1,16 @@
 #ifndef IMGUIFILEBROWSER_H
 #define IMGUIFILEBROWSER_H
 
+#define __STDC_WANT_LIB_EXT1__ 1
+
 #include "imgui.h"
+#include <locale>
 #include <string>
 #include <vector>
+
+#if !__STDC_LIB_EXT1__ && !_MSC_VER
+#define strcpy_s(dest, destsz, src) strcpy(dest, src)
+#endif
 
 namespace imgui_addons
 {
@@ -52,7 +59,7 @@ namespace imgui_addons
             };
 
             //Helper Functions
-            static std::string wStringToString(const wchar_t* wchar_arr);
+            static std::string wStringToString(const wchar_t* wchar_arr, const std::locale& loc = std::locale());
             static bool alphaSortComparator(const Info& a, const Info& b);
             ImVec2 getButtonSize(std::string button_text);
 
