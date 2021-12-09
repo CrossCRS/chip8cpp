@@ -1,5 +1,4 @@
 #include "Emulator.hpp"
-#include <cstdio>
 
 int main() {
     chip8::Emulator emulator;

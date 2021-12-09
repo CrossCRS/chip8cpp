@@ -36,7 +36,6 @@ namespace chip8 {
         this->loadFontset();
 
         this->isHalted = false;
-
     }
 
     Opcode CPU::decodeOpcode() {
@@ -58,8 +57,7 @@ namespace chip8 {
     void CPU::loadFontset() {
         const uint8_t FONTSET_SIZE = 80;
 
-        std::array<uint8_t, FONTSET_SIZE> fontset =
-        {
+        std::array<uint8_t, FONTSET_SIZE> fontset = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
             0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -90,7 +88,7 @@ namespace chip8 {
 
         if (file.is_open()) {
             std::streamoff size = file.tellg();
-            if (size > 0) {
+            if (size) {
                 char* buffer = new char[static_cast<size_t>(size)];
 
                 file.seekg(0, std::ios::beg);

@@ -45,14 +45,14 @@ namespace chip8 {
         this->cpuTimer += delta;
         this->timersTimer += delta;
 
-        while (this->cpuTimer > 1.0F / this->cpuClock) {
+        while (this->cpuTimer > 1.0f / this->cpuClock) {
             this->cpu.cpuTick();
-            this->cpuTimer -= 1.0F / this->cpuClock;
+            this->cpuTimer -= 1.0f / this->cpuClock;
         }
 
-        while (this->timersTimer > 1.0F / this->timersClock) {
+        while (this->timersTimer > 1.0f / this->timersClock) {
             this->cpu.timersTick();
-            this->timersTimer -= 1.0F / this->timersClock;
+            this->timersTimer -= 1.0f / this->timersClock;
         }
     }
 } // namespace chip8
