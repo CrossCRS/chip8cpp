@@ -13,7 +13,7 @@ namespace chip8 {
         ImGui::BeginGroup();
         if (ImGui::Button("Open ROM")) { this->openFileBrowser = true; }
         ImGui::SameLine();
-        if (ImGui::Button("Reset")) { this->cpu.reset(); }
+        if (ImGui::Button("Reset")) { this->cpu.reset(); this->cpu.isHalted = true; }
         ImGui::SameLine();
         if (ImGui::Button("CPU Tick")) { this->cpu.cpuTick(true); }
         ImGui::SameLine();
